@@ -15,4 +15,7 @@ router.get('/published', suratController.getPublishedSurat);
 // POST /api/surat/like/:id
 router.post('/like/:id', suratController.likeSurat);
 
+// GET /api/surat/sent (Memerlukan Login)
+router.get('/sent', protect, suratController.getSentLetters);
+
 module.exports = router;

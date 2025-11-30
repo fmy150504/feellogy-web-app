@@ -1,6 +1,12 @@
 const mongoose = require('mongoose');
 
 const SuratSchema = new mongoose.Schema({
+    user_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: false, // Tidak wajib jika suratnya public/anonim
+        ref: 'User', // Referensi ke model User
+        index: true, // Tambahkan index untuk pencarian cepat di /sent
+    },
     // Judul surat
     title: {
         type: String,

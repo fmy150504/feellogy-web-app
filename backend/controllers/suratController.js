@@ -158,8 +158,36 @@ const likeSurat = async (req, res) => {
     }
 };
 
+// @desc    Mendapatkan semua surat yang dikirim oleh pengguna yang login
+// @route   GET /api/surat/sent
+// @access  Private
+const getSentLetters = async (req, res) => {
+    // Ambil ID pengguna dari JWT token (req.user._id disediakan oleh middleware 'protect')
+    const userId = req.user._id;
+
+    try {
+        const sentLetters = await Surat.find({
+            user_id: userId, // <-- Filter berdasarkan ID pengguna
+            is_published: { $ne: true } // Hanya tampilkan surat internal/berbayar (yang tidak dipublikasikan)
+        })
+        .sort({ sent_at: -1 }) // Terbaru di atas
+        .select('-__v'); 
+
+        res.status(200).json({
+            message: 'Daftar surat terkirim berhasil dimuat.',
+            count: sentLetters.length,
+            data: sentLetters,
+        });
+
+    } catch (error) {
+        console.error("Error fetching sent letters:", error.message);
+        res.status(500).json({ message: 'Gagal memuat surat terkirim.' });
+    }
+};
+
 module.exports = {
     createSurat,
     getPublishedSurat,
-    likeSurat
+    likeSurat,
+    getSentLetters,
 };

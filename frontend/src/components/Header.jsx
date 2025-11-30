@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import AuthContext from '../context/AuthContext'; 
 import useWalletBalance from '../pages/hooks/useWalletBalance'; // <-- IMPORT HOOK BARU
 // Asumsi logo ada di frontend/src/assets/logo.png atau sejenisnya
-import LogoImage from '../assets/logo.png'; 
+import LogoImage from '../assets/feellogy.png'; 
 // GANTILAH 'feellogy-logo.png' dengan nama file yang sesuai
 
 const Header = () => {

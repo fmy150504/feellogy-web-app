@@ -7,20 +7,21 @@ const API_URL = `${BASE_URL}/audio`;
 
 // --- Utility Function: Ekstraksi ID Video YouTube ---
 const getYouTubeVideoId = (url) => {
+    // Regex untuk mencocokkan berbagai format URL YouTube
     const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})/);
     return match ? match[1] : null;
 };
 
-// --- Komponen Full Audio Player ---
+// --- Komponen Full Audio Player (Menyembunyikan Video Visual) ---
 const FullAudioPlayer = ({ episode, onClose }) => {
     if (!episode) return null;
 
     const videoId = getYouTubeVideoId(episode.audio_url);
     const isYouTube = !!videoId;
     
-    // URL Embed YouTube dengan parameter autoplay, kontrol, dan menghilangkan info video
+    // URL Embed YouTube dengan parameter autoplay, kontrol minimal, dan modestbranding
     const embedUrl = isYouTube 
-        ? `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&showinfo=0&rel=0`
+        ? `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&showinfo=0&rel=0&modestbranding=1&disablekb=1&fs=0` 
         : episode.audio_url;
 
     return (
@@ -49,15 +50,20 @@ const FullAudioPlayer = ({ episode, onClose }) => {
             {/* Pemutar Audio/Video (Embed) */}
             <div className="mt-6">
                 {isYouTube ? (
-                    // 1. YouTube Embed (IFRAME)
-                    <iframe 
-                        className="w-full h-16 border-0 rounded-lg" 
-                        src={embedUrl}
-                        allow="autoplay; encrypted-media" 
-                        allowFullScreen 
-                        title={episode.title}
-                        style={{minHeight: '64px'}}
-                    ></iframe>
+                    // 1. YouTube Embed (IFRAME) - Solusi Minimalis
+                    // Wrapper membatasi tinggi frame menjadi 50px dan menyembunyikan overflow
+                    <div style={{ height: '50px', overflow: 'hidden' }} className="w-full relative rounded-lg">
+                        <iframe 
+                            // Set tinggi iframe yang cukup besar agar kontrolnya terlihat di bagian bawah
+                            className="w-full border-0 absolute top-[-100px]" // PUSH LEBIH JAUH KE ATAS
+                            height="150" 
+                            src={embedUrl}
+                            allow="autoplay; encrypted-media" 
+                            allowFullScreen 
+                            title={episode.title}
+                            style={{minHeight: '48px'}} 
+                        ></iframe>
+                    </div>
                 ) : (
                     // 2. HTML5 Audio (Untuk file MP3 langsung)
                     <audio controls autoPlay src={embedUrl} className="w-full">
@@ -154,11 +160,11 @@ const AudioDiaryPage = () => {
         if (storedEpisode) {
             try {
                 const episode = JSON.parse(storedEpisode);
-                setCurrentEpisode(episode); // Set episode yang akan dimainkan
+                setCurrentEpisode(episode); 
             } catch (e) {
                 console.error("Error parsing stored episode:", e);
             } finally {
-                localStorage.removeItem('randomEpisode'); // Hapus dari storage setelah digunakan
+                localStorage.removeItem('randomEpisode'); 
             }
         }
     }, []); 
@@ -177,7 +183,7 @@ const AudioDiaryPage = () => {
                 {/* Bagian Judul Utama (Tetap Ditampilkan) */}
                 <h1 className="text-4xl font-extrabold text-gray-800 mb-2 text-center">🎧 Audio Diary</h1>
                 <p className="text-lg text-gray-500 mb-8 text-center max-w-3xl mx-auto">
-                    Dengarkan percakapan hangat bersama psikolog tentang<br />kisah seputar penyembuhan mental di <b>Audio Diary</b>!
+                    Dengarkan percakapan hangat bersama psikolog tentang<br />kisah seputar penyembuhan mental di **Audio Diary**!
                 </p>
 
                 <div className="text-center mb-10">

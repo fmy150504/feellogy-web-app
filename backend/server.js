@@ -9,6 +9,7 @@ const quizRoutes = require('./routes/quizRoutes');
 const userRoutes = require('./routes/userRoutes');
 const psikologRoutes = require('./routes/psikologRoutes');
 const walletRoutes = require('./routes/walletRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 // Muat environment variables dari .env
 dotenv.config({ path: '../.env' }); 
@@ -37,6 +38,7 @@ app.use('/api/quiz', quizRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/psikolog', psikologRoutes);
 app.use('/api/wallet', walletRoutes);
+app.use('/api/admin', adminRoutes);
 
 // --- Route Sederhana (Test) ---
 app.get('/', (req, res) => {

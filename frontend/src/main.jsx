@@ -18,6 +18,7 @@ import PrivacyPolicyPage from './pages/PrivacyPolicyPage.jsx';
 import PsikologDashboard from './pages/PsikologDashboard.jsx';
 import AdminCMSPage from './pages/AdminCMSPage.jsx';
 import BuyCoinsPage from './pages/BuyCoinsPage.jsx';
+import SentLettersPage from './pages/SentLettersPage.jsx';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -56,6 +57,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 
           {/* Route Topup */}
           <Route path="/buy-coins" element={<BuyCoinsPage />} />
+
+          {/* Route Halaman Pesan Terkirim */}
+          <Route path="/sent" element={<SentLettersPage />} />
 
         </Routes>
       </AuthProvider>

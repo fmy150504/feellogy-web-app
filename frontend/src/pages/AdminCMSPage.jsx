@@ -1,59 +1,153 @@
-// frontend/src/pages/AdminCMSPage.jsx
-
 import React, { useState, useContext, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import AuthContext from '../context/AuthContext'; 
+// Asumsi CreateUserForm ada di components/admin/CreateUserForm.jsx
+import CreateUserForm from '../components/admin/CreateUserForm'; 
 
-// Placeholder Komponen untuk Halaman Admin
-const DashboardSummary = () => (
-    <div className="grid grid-cols-3 gap-6">
-        <StatCard title="Total Surat Aktif" value="1,200" />
-        <StatCard title="Pengguna Terdaftar" value="560" />
-        <StatCard title="Surat Menunggu Balasan" value="12" />
-    </div>
-);
+const BASE_URL = import.meta.env.VITE_API_URL;
+const API_URL_SUMMARY = `${BASE_URL}/admin/summary`;
+
+// --- Komponen Statistik Ringkasan ---
 const StatCard = ({ title, value }) => (
     <div className="bg-white p-6 rounded-lg shadow border-l-4 border-purple-500">
         <p className="text-sm text-gray-500">{title}</p>
         <h3 className="text-3xl font-bold text-gray-800 mt-1">{value}</h3>
     </div>
 );
-const UserManagement = () => <div>Halaman Manajemen Pengguna (Buat Akun Psikolog/Admin)</div>;
-const DeletedLogs = () => <div>Halaman Log Aksi Admin (Soft Delete Log)</div>;
+const DashboardSummary = ({ summaryData }) => (
+    <div className="space-y-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <StatCard title="Total Pengguna (Semua Role)" value={summaryData.totalUsers} />
+            <StatCard title="Total Psikolog Aktif" value={summaryData.totalPsikologs} />
+            <StatCard title="Surat Menunggu Balasan" value={summaryData.lettersWaiting} />
+        </div>
+        
+        {/* Placeholder Log Terakhir */}
+        <div className="p-4 bg-white rounded-lg shadow">
+            <h3 className="text-xl font-bold mb-3 text-gray-800">10 Aksi Log Terakhir</h3>
+            <AdminLogs logs={summaryData.latestLogs} isSummary={true} />
+        </div>
+    </div>
+);
+
+// --- Komponen Manajemen Pengguna ---
+const UserManagement = ({ onUserCreated }) => (
+    <div className="space-y-6">
+        <h3 className="text-2xl font-bold text-gray-800 mb-4">Buat Akun Tim Baru</h3>
+        {/* Form untuk membuat Admin/Psikolog baru */}
+        <CreateUserForm onUserCreated={onUserCreated} />
+        
+        {/* Placeholder daftar user */}
+        <div className="p-4 bg-gray-100 rounded-lg text-gray-600">
+            <p className="font-semibold">Daftar Pengguna Aktif (Implementasi CRUD User)</p>
+        </div>
+    </div>
+);
+
+// --- Komponen Log Aktivitas ---
+const AdminLogs = ({ logs, isSummary = false }) => (
+    <div className="space-y-4">
+        {!isSummary && <h3 className="text-2xl font-bold text-gray-800 mb-4">Log Aksi Lengkap</h3>}
+        {logs.length === 0 ? (
+            <p className="text-gray-500 italic">Belum ada log aktivitas yang tercatat.</p>
+        ) : (
+            <div className="bg-white rounded-lg shadow border">
+                {logs.map((log, index) => (
+                    <div key={log._id || index} className="p-3 border-b text-sm">
+                        <p className="font-semibold text-gray-900">{log.description}</p>
+                        <span className="text-xs text-gray-500">
+                            {new Date(log.createdAt).toLocaleString()} | ID: {log.admin_id?.substring(0, 5)}...
+                        </span>
+                    </div>
+                ))}
+            </div>
+        )}
+    </div>
+);
+
 
 const AdminCMSPage = () => {
     const { user, isAuthenticated } = useContext(AuthContext);
     const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState('summary');
     
-    // Periksa role user
-    const userRole = user ? user.role : 'guest';
-    const isSuperAdmin = userRole === 'admin'; // Asumsi 'admin' adalah super admin untuk saat ini
+    // State CMS
+    const [activeTab, setActiveTab] = useState('summary');
+    const [summaryData, setSummaryData] = useState({ 
+        totalUsers: 0, totalLetters: 0, lettersWaiting: 0, 
+        latestLogs: [], totalPsikologs: 0 
+    }); 
+    const [isLoading, setIsLoading] = useState(true);
+    
+    const userRole = user ? user.role.toLowerCase().trim() : 'guest';
+    const isSuperAdmin = userRole === 'admin'; 
 
-    useEffect(() => {
-        if (!isAuthenticated || userRole === 'psikolog' || userRole === 'user') {
-            // Jika bukan admin, tendang ke dashboard psikolog atau ke homepage
-            navigate(isAuthenticated ? '/dashboard' : '/');
+    // --- Fetch Summary Data ---
+    const fetchSummaryData = async () => {
+        if (!isSuperAdmin) return;
+        setIsLoading(true);
+        try {
+            const token = user.token;
+            const response = await fetch(API_URL_SUMMARY, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            
+            if (response.ok) {
+                setSummaryData(data.data); // Set data nyata dari backend
+            }
+        } catch (err) {
+            console.error("Failed to fetch admin summary:", err);
+        } finally {
+            setIsLoading(false);
         }
+    };
+    
+    // Callback setelah user baru dibuat
+    const handleUserCreated = () => {
+        fetchSummaryData(); // Refresh statistik setelah user dibuat
+        setActiveTab('summary'); // Kembali ke summary
+    };
+
+    // Pengecekan Akses dan Fetch Data Awal
+    useEffect(() => {
+        if (!isAuthenticated) {
+            navigate('/login');
+            return;
+        }
+        
+        // Pengalihan jika bukan Admin
+        if (userRole !== 'admin') {
+            navigate('/dashboard'); // Alihkan Psikolog/User ke dashboard mereka
+            return;
+        }
+
+        // Jika Admin, fetch data
+        fetchSummaryData();
     }, [isAuthenticated, userRole, navigate]);
     
-    if (!isAuthenticated || !isSuperAdmin) {
-        return null; // Tunda rendering sambil navigate
+    // Tunda rendering jika belum login atau bukan admin (sebelum navigate)
+    if (!isAuthenticated || userRole !== 'admin') {
+        return <div className="min-h-screen flex items-center justify-center"><p>Memeriksa akses...</p></div>;
     }
 
 
+    // Fungsi render konten tab
     const renderContent = () => {
+        if (isLoading) return <p className="text-center mt-10">Memuat statistik...</p>;
+        
         switch (activeTab) {
             case 'summary':
-                return <DashboardSummary />;
+                return <DashboardSummary summaryData={summaryData} />;
             case 'users':
-                return <UserManagement />;
+                // Pass callback
+                return <UserManagement onUserCreated={handleUserCreated} />; 
             case 'logs':
-                return <DeletedLogs />;
+                // Kirim data logs nyata ke komponen
+                return <AdminLogs logs={summaryData.latestLogs} />; 
             default:
-                return <DashboardSummary />;
+                return <DashboardSummary summaryData={summaryData} />;
         }
     };
 
@@ -70,9 +164,9 @@ const AdminCMSPage = () => {
                             <button
                                 key={tab}
                                 onClick={() => setActiveTab(tab)}
-                                className={`w-full text-left py-2 px-3 rounded-lg transition ${activeTab === tab ? 'bg-purple-100 text-purple-800 font-semibold' : 'text-gray-600 hover:bg-gray-100'}`}
+                                className={`w-full text-left py-2 px-3 transition capitalize ${activeTab === tab ? 'bg-purple-100 text-purple-800 font-semibold' : 'bg-white text-gray-600 hover:bg-gray-100'}`}
                             >
-                                {tab.charAt(0).toUpperCase() + tab.slice(1)} Management
+                                {tab.replace('-', ' ')} Management
                             </button>
                         ))}
                     </nav>
