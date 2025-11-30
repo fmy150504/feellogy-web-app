@@ -113,14 +113,16 @@ const HomePage = () => {
                         Bergabung dengan Feelmates
                     </h2>
                     <p className="text-lg text-gray-600 mb-6">
-                        Jadilah bagian dari Feelmates dan temukan ruang<br />aman untuk berbagi cerita dan pengalamanmu!
+                        Bergabung dengan WhatsApp Channel kami agar<br/>tidak terlewat pembaruan dari kami seputar Feellogy!
                     </p>
-                    <Link 
-                        to="/register" 
+                    <a 
+                        href="https://www.whatsapp.com/channel/0029Vb7HF5T90x2xLpmgud3z" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
                         className="px-8 py-3 bg-green-300 text-green-800 font-bold rounded-full hover:bg-green-400 transition shadow-md"
                     >
                         Gabung Sekarang
-                    </Link>
+                    </a>
                 </section>
 
             </main>
