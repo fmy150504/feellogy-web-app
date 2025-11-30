@@ -12,7 +12,7 @@ const API_URL_PURCHASE = `${BASE_URL}/wallet/purchase`;
 
 const COIN_PACKAGES = [
     { id: 100, coins: 100, price: 10000, label: "Rp10.000" },
-    { id: 300, coins: 300, price: 25000, label: "Rp25.000" },
+    { id: 275, coins: 275, price: 25000, label: "Rp25.000" },
     { id: 600, coins: 600, price: 50000, label: "Rp50.000 (Hemat)" },
     { id: 1000, coins: 1000, price: 70000, label: "Rp70.000 (Best Deal)" },
 ];
@@ -151,7 +151,7 @@ const BuyCoinsPage = () => {
                         disabled={!isReadyToPurchase || isLoading}
                         className="w-full mt-6 py-3 bg-green-500 text-white font-bold rounded-lg hover:bg-green-600 transition disabled:bg-gray-400"
                     >
-                        {isLoading ? 'Memproses Pembayaran...' : `Lanjutkan Pembayaran (${selectedPackage ? selectedPackage.label : 'Pilih Paket'})`}
+                        {isLoading ? 'Memproses Pembayaran...' : `Lanjutkan Pembayaran (${selectedPackage ? selectedPackage.price : 'Pilih Paket'})`}
                     </button>
                     
                     {/* Informasi Layanan */}

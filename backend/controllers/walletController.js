@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 // --- Daftar Paket Koin (Sama dengan di Frontend) ---
 const COIN_PACKAGES = {
     '100': { coins: 100, price: 10000, label: "Rp10.000" },
-    '300': { coins: 300, price: 25000, label: "Rp25.000" },
+    '275': { coins: 275, price: 25000, label: "Rp25.000" },
     '600': { coins: 600, price: 50000, label: "Rp50.000 (Hemat)" },
     '1000': { coins: 1000, price: 70000, label: "Rp70.000 (Best Deal)" },
 };
