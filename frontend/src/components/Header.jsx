@@ -45,6 +45,7 @@ const Header = () => {
                     <Link to="/surat" className={linkClasses}>Surat Anonim</Link>
                     <Link to="/audio" className={linkClasses}>Audio Diary</Link>
                     <Link to="/quiz" className={linkClasses}>Mind Quiz</Link>
+                    <Link to="/sent" className={linkClasses}>Kotak Keluar</Link>
                     
                     {isAuthenticated ? (
                         <>

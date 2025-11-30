@@ -13,7 +13,7 @@ const API_URL_PURCHASE = `${BASE_URL}/wallet/purchase`;
 const COIN_PACKAGES = [
     { id: 100, coins: 100, price: 10000, label: "Rp10.000" },
     { id: 300, coins: 300, price: 25000, label: "Rp25.000" },
-    { id: 600, coins: 600, price: 45000, label: "Rp45.000 (Hemat)" },
+    { id: 600, coins: 600, price: 50000, label: "Rp50.000 (Hemat)" },
     { id: 1000, coins: 1000, price: 70000, label: "Rp70.000 (Best Deal)" },
 ];
 
@@ -156,7 +156,7 @@ const BuyCoinsPage = () => {
                     
                     {/* Informasi Layanan */}
                     <p className="text-xs text-gray-500 mt-4 text-center">
-                        Koin dapat digunakan untuk layanan Surat Anonim Berbayar. Koin tidak dapat diuangkan kembali.
+                        Koin dapat digunakan untuk layanan Surat Psikolog. Koin tidak dapat diuangkan kembali.
                     </p>
                 </div>
                 

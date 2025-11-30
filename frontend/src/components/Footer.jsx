@@ -17,7 +17,14 @@ const Footer = () => {
                     <Link to="/about" className="hover:underline text-base font-medium text-white">Tentang Kami</Link>
                     
                     {/* Menu 2 */}
-                    <Link to="/" className="hover:underline text-base font-medium text-white">Media Sosial</Link> 
+                    <a 
+                        href="https://www.instagram.com/feellogy.id?igsh=MTFncno0ZjEwbzR3cA%3D%3D&utm_source=qr" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="hover:underline text-base font-medium text-white"
+                    >
+                        Media Sosial
+                    </a>
 
                     {/* Menu 3 */}
                     <Link to="/privacy" className="hover:underline text-base font-medium text-white">Kebijakan Privasi</Link>

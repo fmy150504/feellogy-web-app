@@ -139,7 +139,7 @@ const SuratForm = ({ fetchSurat, isPaidDefault, isPublishedDefault, onClose }) =
                         <p className="text-sm font-semibold">Tipe Surat Dipilih:</p>
                         <p className="text-base font-bold text-purple-700">
                             {isPaidDefault ? 
-                                '💌 Balasan Psikolog (100 Koin)' : 
+                                '💌 Balasan Psikolog (200 Koin atau Rp. 20.000)' : 
                                 `📩 Surat Curhat Anonim`
                             }
                         </p>

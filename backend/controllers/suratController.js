@@ -6,7 +6,7 @@ const UserWallet = require('../models/WalletModel'); // Diperlukan untuk cek sal
 const Transaction = require('../models/TransactionModel'); // Diperlukan untuk log transaksi
 
 // Biaya tetap untuk balasan surat
-const LETTER_COST = 100; // 100 koin
+const LETTER_COST = 200; // 200 koin
 
 // Fungsi Helper untuk Update Saldo dan Log Transaksi (Diambil dari Psikolog Controller)
 const updateWalletAndLog = async (userId, amount, type, description, referenceId = null) => {

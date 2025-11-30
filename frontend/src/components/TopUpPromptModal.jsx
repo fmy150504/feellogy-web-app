@@ -14,7 +14,7 @@ const TopUpPromptModal = ({ isOpen, onClose }) => {
                 <h3 className="text-xl font-bold text-red-600 mb-4">Saldo Koin Tidak Cukup</h3>
                 
                 <p className="text-gray-700 mb-6">
-                    Anda perlu 100 koin untuk mengirim surat berbayar ini. Silakan Top Up terlebih dahulu.
+                    Anda perlu 200 koin untuk mengirim surat berbayar ini. Silakan Top Up terlebih dahulu.
                 </p>
 
                 {/* Tombol Aksi */}
