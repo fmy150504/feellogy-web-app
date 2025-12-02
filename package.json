@@ -1,0 +1,19 @@
+{
+  "name": "feellogy-fullstack",
+  "version": "1.0.0",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "server": "nodemon backend/server.js",
+    "client": "npm run dev --prefix frontend",
+    "build-client": "npm run build --prefix frontend",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "render-postbuild": "npm install --prefix backend && npm run build-client"
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}
