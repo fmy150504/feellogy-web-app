@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
-import AuthContext from '../../context/AuthContext';
+import AuthContext from '../context/AuthContext';
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 const API_URL_BALANCE = `${BASE_URL}/wallet/balance`;

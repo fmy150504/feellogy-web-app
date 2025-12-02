@@ -76,7 +76,7 @@ const FullAudioPlayer = ({ episode, onClose }) => {
             <div className="mt-4 text-right">
                 <button 
                     onClick={onClose}
-                    className="text-sm text-gray-500 hover:text-red-500"
+                    className="bg-red-500 text-sm text-white hover:bg-red-400"
                 >
                     Tutup Player
                 </button>
