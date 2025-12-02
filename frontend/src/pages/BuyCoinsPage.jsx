@@ -83,6 +83,7 @@ const BuyCoinsPage = () => {
                 setBalance(data.new_balance); // <-- PERUBAHAN DI SINI
                 
                 // fetchBalance(); // Tidak perlu lagi memanggil ini jika setBalance(data.new_balance) dilakukan
+                window.location.reload();
             } else {
                 setError(data.message || 'Pembayaran gagal diproses di server.');
             }

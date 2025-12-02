@@ -19,6 +19,7 @@ import PsikologDashboard from './pages/PsikologDashboard.jsx';
 import AdminCMSPage from './pages/AdminCMSPage.jsx';
 import BuyCoinsPage from './pages/BuyCoinsPage.jsx';
 import SentLettersPage from './pages/SentLettersPage.jsx';
+import QuizHistoryPage from './pages/QuizHistoryPage.jsx';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -60,6 +61,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 
           {/* Route Halaman Pesan Terkirim */}
           <Route path="/sent" element={<SentLettersPage />} />
+
+          {/* Route Quiz History */}
+          <Route path="/quiz-history" element={<QuizHistoryPage />} />
 
         </Routes>
       </AuthProvider>

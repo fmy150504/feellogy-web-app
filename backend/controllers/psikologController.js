@@ -1,20 +1,45 @@
-// backend/controllers/psikologController.js
-
 const User = require('../models/UserModel');
-const Surat = require('../models/SuratModel'); // Diperlukan untuk query Surat
-const UserWallet = require('../models/WalletModel'); // Diperlukan untuk logic Wallet
-const Transaction = require('../models/TransactionModel'); // Diperlukan untuk Wallet Log
+const Surat = require('../models/SuratModel'); 
+const UserWallet = require('../models/WalletModel'); 
+const Transaction = require('../models/TransactionModel'); 
 const mongoose = require('mongoose');
 
 // Biaya tetap untuk balasan surat (Digunakan di logic pemotongan koin di SuratController)
-const LETTER_COST = 100; 
+const LETTER_COST = 200; // Harga Baru: 200 koin
 
-// Fungsi Helper (Placeholder): Diperlukan untuk logic Wallet/Refund/Log di masa depan
+// Fungsi Helper (Diperlukan untuk logic Wallet/Refund/Log)
+// NOTE: Fungsi ini harus tersedia jika tidak diimpor dari file lain.
 const updateWalletAndLog = async (userId, amount, type, description, referenceId = null) => {
-    // FUNGSI INI AKAN DIIMPLEMENTASIKAN SAAT LOGIC WALLET DIKEMBANGKAN
-    // Untuk saat ini, kita kembalikan placeholder
-    return { success: true, balance: 'N/A' };
+    // 1. Update Saldo Wallet
+    const updatedWallet = await UserWallet.findOneAndUpdate(
+        { user_id: userId },
+        { $inc: { balance: amount } },
+        { new: true, upsert: true }
+    );
+
+    // 2. Buat Log Transaksi
+    await Transaction.create({
+        user_id: userId,
+        type: type,
+        amount: amount,
+        description: description,
+        reference_id: referenceId,
+    });
+    
+    return updatedWallet;
 };
+
+// Helper untuk mencatat aksi Admin (Diambil dari AdminController)
+const logAdminAction = async (adminId, action, description, targetId = null) => {
+    // Pastikan AdminLog Model diimpor
+    await AdminLog.create({
+        admin_id: adminId,
+        action: action,
+        description: description,
+        target_id: targetId,
+    });
+};
+
 
 // --- CONTROLLER GETTERS ---
 
@@ -23,29 +48,25 @@ const updateWalletAndLog = async (userId, amount, type, description, referenceId
 // @access  Private (Psikolog/Admin)
 const getAllInternalLetters = async (req, res) => {
     try {
+        // Query Mongoose NYATA untuk Dashboard Psikolog
         const letters = await Surat.find({
-            // 1. Ambil surat yang is_published: false (surat internal)
-            // (Semua surat tim ahli masuk di sini, baik paid_waiting atau internal)
-            is_published: false,
-            
-            // 2. Status BUKAN 'paid_answered' atau 'refunded'
-            status: { $nin: ['paid_answered', 'refunded'] }, 
-            
-            // 3. Status BUKAN 'is_deleted'
+            is_published: false, // Hanya surat internal
+            status: { $nin: ['paid_answered', 'refunded'] }, // Belum selesai
             is_deleted: { $ne: true } 
         })
-        .sort({ is_paid: -1, sent_at: 1 })
-        .select('-__v -updatedAt');
+        .sort({ is_paid: -1, sent_at: 1 }) // Paid dulu, lalu yang paling lama dikirim
+        .select('-__v -updatedAt'); 
 
         res.status(200).json({
             message: 'Daftar surat internal berhasil dimuat dari database.',
-            data: letters, // Kirim data nyata
+            data: letters, 
         });
 
     } catch (error) {
         res.status(500).json({ message: 'Gagal memuat surat internal dari database.', error: error.message });
     }
 };
+
 
 // --- CONTROLLER BALAS SURAT ---
 
@@ -57,20 +78,21 @@ const replyToPaidLetter = async (req, res) => {
     const { reply_content } = req.body;
     const psikologId = req.user._id; 
 
+    // 1. Validasi Input dan Role Admin
     if (!reply_content || reply_content.length < 50) {
         return res.status(400).json({ message: 'Isi balasan minimal 50 karakter.' });
     }
     
-    // 1. Otorisasi Role Admin (Sesuai Aturan: Admin tidak boleh membalas)
     if (req.user.role === 'admin') {
         return res.status(403).json({ message: 'Admin hanya dapat melihat log, tidak diizinkan membalas surat berbayar.' });
     }
 
     try {
-        // 2. Cek status surat (Hanya yang paid_waiting yang bisa dibalas)
+        // 2. Cek status surat (Harus 'paid_waiting')
         const letter = await Surat.findById(suratId);
-        if (!letter || letter.status !== 'paid_waiting') {
-            return res.status(404).json({ message: 'Surat tidak ditemukan, sudah dibalas, atau statusnya tidak "menunggu balasan".' });
+        
+        if (!letter || !letter.is_paid || letter.status !== 'paid_waiting') {
+            return res.status(404).json({ message: 'Surat tidak ditemukan, sudah dibalas, atau statusnya tidak "menunggu balasan berbayar".' });
         }
 
         // 3. Update Surat dengan Balasan
@@ -81,20 +103,15 @@ const replyToPaidLetter = async (req, res) => {
             answered_at: new Date(),
         }, { new: true });
 
-        // Cek apakah updatedLetter berhasil (termasuk judulnya)
+        // Safety check setelah update
         if (!updatedLetter) {
-            return res.status(500).json({ message: 'Gagal memperbarui status surat.' });
+             return res.status(500).json({ message: 'Gagal memperbarui status surat.' });
         }
+        
+        // 4. (Logika Koin): Hentikan timer 48 jam di sini.
 
         res.status(200).json({
             message: `Balasan untuk surat "${updatedLetter.title}" berhasil dikirim.`, 
-            surat: updatedLetter,
-        });
-        
-        // 4. (Logika Koin): Hentikan timer 48 jam dan konfirmasi pemotongan koin di sini.
-
-        res.status(200).json({
-            message: `Balasan untuk Surat ID ${updatedLetter._id} berhasil dikirim. Status surat diubah menjadi Selesai.`,
             surat: updatedLetter,
         });
 
@@ -104,8 +121,73 @@ const replyToPaidLetter = async (req, res) => {
 };
 
 
+// @desc    Memicu refund koin untuk surat yang batas waktunya habis
+// @route   POST /api/psikolog/refund/:letterId
+// @access  Private (Admin/Scheduler Only)
+const refundLetterCoins = async (req, res) => {
+    const { letterId } = req.params;
+    const adminId = req.user._id; // Admin yang memicu aksi
+
+    if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Akses Ditolak. Hanya Admin yang dapat memicu refund.' });
+    }
+    if (!mongoose.Types.ObjectId.isValid(letterId)) {
+        return res.status(400).json({ message: 'ID Surat tidak valid.' });
+    }
+
+    try {
+        // 1. Ambil Surat dan cek status
+        const letter = await Surat.findById(letterId);
+
+        if (!letter) {
+            return res.status(404).json({ message: 'Surat tidak ditemukan.' });
+        }
+        if (letter.status !== 'paid_waiting' || !letter.is_paid) {
+            return res.status(400).json({ message: 'Surat sudah diproses/di-refund atau bukan surat berbayar.' });
+        }
+        
+        const refundAmount = LETTER_COST; 
+        const userIdToRefund = letter.user_id;
+
+        // 2. Lakukan Transaksi Refund
+        await updateWalletAndLog(
+            userIdToRefund, 
+            refundAmount, // Nilai positif untuk penambahan saldo
+            'refund', 
+            `Pengembalian koin karena surat ID ${letterId} tidak dibalas dalam 48 jam.`,
+            letterId
+        );
+        
+        // 3. Update Status Surat menjadi Refunded
+        const updatedLetter = await Surat.findByIdAndUpdate(letterId, 
+            { 
+                status: 'refunded', 
+                answered_at: new Date() // Catat waktu refund
+            },
+            { new: true }
+        );
+
+        // 4. Log Aksi Admin
+        await logAdminAction(
+            adminId,
+            'REFUND_COIN',
+            `Admin memproses refund ${refundAmount} koin untuk Surat ID: ${letterId}`,
+            letterId
+        );
+
+        res.status(200).json({
+            message: `Refund ${refundAmount} koin berhasil diproses untuk Surat ID ${updatedLetter._id}.`,
+            letter: updatedLetter,
+        });
+
+    } catch (error) {
+        res.status(500).json({ message: 'Gagal memproses refund.', error: error.message });
+    }
+};
+
+
 module.exports = {
     replyToPaidLetter,
     getAllInternalLetters,
-    // Di sini akan ada getAdminSummary (Nanti)
+    refundLetterCoins, // Export fungsi refund
 };

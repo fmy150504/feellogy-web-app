@@ -1,6 +1,7 @@
 // backend/controllers/walletController.js
 
 const UserWallet = require('../models/WalletModel');
+const Transaction = require('../models/TransactionModel'); // <-- IMPORT TRANSACTION MODEL
 const mongoose = require('mongoose');
 
 // --- Daftar Paket Koin (Sama dengan di Frontend) ---
@@ -13,11 +14,10 @@ const COIN_PACKAGES = {
 // ----------------------------------------------------
 
 
-// @desc    Mendapatkan saldo koin pengguna
-// @route   GET /api/wallet/balance
-// @access  Private (Requires JWT)
+// @desc    Mendapatkan saldo koin pengguna
+// @route   GET /api/wallet/balance
+// @access  Private (Requires JWT)
 const getWalletBalance = async (req, res) => {
-    // ... (Logika yang sudah Anda implementasikan) ...
     const userId = req.user._id; 
     try {
         const wallet = await UserWallet.findOne({ user_id: userId });
@@ -34,12 +34,13 @@ const getWalletBalance = async (req, res) => {
     }
 };
 
-// @desc    Memproses pembelian koin
-// @route   POST /api/wallet/purchase
-// @access  Private (Requires JWT)
+// @desc    Memproses pembelian koin
+// @route   POST /api/wallet/purchase
+// @access  Private (Requires JWT)
 const purchaseCoins = async (req, res) => {
     const userId = req.user._id;
-    const { package_id } = req.body; // package_id adalah jumlah koin (misal: 100, 300)
+    // package_id di sini harus berupa string '100', '275', dll.
+    const { package_id } = req.body; 
 
     // 1. Validasi Paket
     const selectedPackage = COIN_PACKAGES[package_id];
@@ -47,21 +48,26 @@ const purchaseCoins = async (req, res) => {
         return res.status(400).json({ message: 'ID paket tidak valid.' });
     }
     
-    // Jumlah koin yang akan ditambahkan
     const coinsToAdd = selectedPackage.coins;
 
     try {
-        // 2. Cari atau Buat Wallet
-        // Gunakan upsert: true untuk memastikan dokumen dibuat jika belum ada
+        // 2. Cari atau Buat Wallet dan Tambah Saldo ($inc)
         const updatedWallet = await UserWallet.findOneAndUpdate(
             { user_id: userId },
-            { $inc: { balance: coinsToAdd } }, // Operator $inc (increment)
-            { new: true, upsert: true } // new: kembalikan dokumen yang diperbarui; upsert: buat jika tidak ada
+            { $inc: { balance: coinsToAdd } }, 
+            { new: true, upsert: true }
         );
 
-        // 3. (Real Logic): Integrasi Payment Gateway seharusnya di sini
-        // Anggap proses pembayaran sukses dan kita langsung update saldo
+        // 3. Catat Transaksi Pembelian (Penting untuk Log)
+        await Transaction.create({
+            user_id: userId,
+            type: 'purchase', // Tipe transaksi: pembelian
+            amount: coinsToAdd, 
+            description: `Pembelian ${coinsToAdd} koin sukses (${selectedPackage.label})`,
+            status: 'completed',
+        });
         
+        // 4. Kirim Respons Sukses
         res.status(200).json({
             message: `Pembelian ${coinsToAdd} koin berhasil! Saldo Anda saat ini: ${updatedWallet.balance} Koin.`,
             new_balance: updatedWallet.balance,
@@ -76,5 +82,5 @@ const purchaseCoins = async (req, res) => {
 
 module.exports = {
     getWalletBalance,
-    purchaseCoins, // <-- EXPORT FUNGSI BARU
+    purchaseCoins, 
 };

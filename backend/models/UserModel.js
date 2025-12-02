@@ -29,6 +29,10 @@ const UserSchema = new mongoose.Schema({
         enum: ['user', 'psikolog', 'admin'], // Nilai yang mungkin
         default: 'user', // Default adalah pengguna biasa
     },
+    is_suspended: {
+        type: Boolean,
+        default: false, // Flag jika user ditangguhkan aksesnya
+    },
 }, {
     timestamps: true
 });

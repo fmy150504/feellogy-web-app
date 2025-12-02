@@ -18,4 +18,7 @@ router.post('/like/:id', suratController.likeSurat);
 // GET /api/surat/sent (Memerlukan Login)
 router.get('/sent', protect, suratController.getSentLetters);
 
+// POST /api/surat/support/:letterId - Toggle Dukungan
+router.post('/support/:letterId', protect, suratController.toggleSupportLetter); // <-- ROUTE BARU
+
 module.exports = router;

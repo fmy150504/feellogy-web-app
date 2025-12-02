@@ -1,17 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import SuratModal from '../components/SuratModal'; // <-- MODAL SUDAH ADA
-// HAPUS: const SuratForm = ({ fetchSurat, ... }) => { ... } DARI SINI
+import SuratModal from '../components/SuratModal'; 
+import AuthContext from '../context/AuthContext'; 
+import LoginPromptModal from '../components/LoginPromptModal'; // Diperlukan untuk login gate
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 const API_URL = `${BASE_URL}/surat`;
-const LIMIT = 4; // Batas surat per halaman                
+const LIMIT = 4; // Batas surat per halaman
 
 // --- Komponen Kartu Surat (Daftar) ---
-const NewSuratCard = ({ surat, handleLike, isLiking }) => {
+// Note: Komponen ini harus diperbarui agar mengambil supports array dari backend
+const NewSuratCard = ({ surat, handleToggleSupport, isLiking, isAuthenticated, userId }) => {
     
-    // ... (logic NewSuratCard tetap sama) ...
+    // Asumsi: Backend mengirim supports: array of User IDs
+    const supportsArray = surat.supports || [];
+    const isSupported = isAuthenticated && supportsArray.includes(userId); 
+    const displayCount = supportsArray.length;
+    
     const truncatedContent = surat.content.split(' ').slice(0, 50).join(' ') + (surat.content.split(' ').length > 50 ? '...' : '');
 
     return (
@@ -26,14 +32,17 @@ const NewSuratCard = ({ surat, handleLike, isLiking }) => {
             {/* Tombol Dukungan di Kanan Bawah */}
             <div className="absolute right-3 bottom-3">
                 <button
-                    onClick={() => handleLike(surat._id)} 
-                    className="flex items-center space-x-1 px-3 py-1 bg-purple-500 text-white font-bold rounded-full hover:bg-purple-600 transition disabled:opacity-50 shadow-lg text-sm"
+                    onClick={() => handleToggleSupport(surat._id)} 
+                    // Styling: Ungu Solid jika sudah didukung (isSupported)
+                    className={`flex items-center space-x-1 px-3 py-1 text-sm font-bold rounded-full shadow-lg transition 
+                        ${isSupported ? 'bg-purple-700 text-white' : 'bg-purple-500 text-white hover:bg-purple-600'} 
+                        disabled:opacity-50`}
                     disabled={isLiking}
                 >
                     <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
                         <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                     </svg>
-                    <span>{surat.likes_count} Dukungan</span>
+                    <span>{displayCount} Dukungan</span>
                 </button>
             </div>
         </div>
@@ -41,7 +50,7 @@ const NewSuratCard = ({ surat, handleLike, isLiking }) => {
 };
 
 
-// --- Komponen Kartu Pilihan Surat ---
+// --- Komponen Kartu Pilihan Surat (Memunculkan Modal) ---
 const ChoiceCard = ({ title, description, icon, type, onClick }) => (
     <div 
         onClick={() => onClick(type)}
@@ -64,9 +73,11 @@ const SuratAnonimPage = () => {
     const [isLiking, setIsLiking] = useState(false);
     const [page, setPage] = useState(1); 
 
-    // State Modal
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    // Auth & Modal States
+    const { isAuthenticated, user } = useContext(AuthContext); 
+    const [isModalOpen, setIsModalOpen] = useState(false); // Modal Kirim Surat
     const [modalType, setModalType] = useState('anonim'); 
+    const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false); // Modal Login Gate
 
     // --- LOGIC FETCH SURAT PUBLIK ---
     const fetchSurat = async () => {
@@ -79,8 +90,9 @@ const SuratAnonimPage = () => {
             }
             const data = await response.json();
             
+            // Sort berdasarkan supports.length (likes)
             const sortedSurat = data.data.sort((a, b) => {
-                return b.likes_count - a.likes_count;
+                return (b.supports?.length || 0) - (a.supports?.length || 0);
             });
 
             setAllSurat(sortedSurat);
@@ -91,16 +103,36 @@ const SuratAnonimPage = () => {
         }
     };
     
-    // LOGIC LIKE
-    const handleLike = async (id) => {
-        if (isLiking) return;
+    // --- Logic Toggle Dukungan (Check Login) ---
+    const handleToggleSupport = async (letterId) => {
+        if (!isAuthenticated) {
+            // 1. Jika belum login, tampilkan prompt login
+            setIsLoginPromptOpen(true);
+            return;
+        }
 
+        // 2. Jika sudah login, lanjutkan ke logic API
         setIsLiking(true);
         try {
-            await fetch(`${API_URL}/like/${id}`, { method: 'POST' });
-            fetchSurat(); 
+            const token = user.token;
+            // Gunakan endpoint support yang baru
+            const response = await fetch(`${API_URL}/support/${letterId}`, { 
+                method: 'POST',
+                headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            const data = await response.json();
+            
+            if (response.ok) {
+                 fetchSurat(); // Refresh daftar untuk update hitungan
+            } else {
+                 alert(data.message || 'Gagal memberikan dukungan. Cek koneksi.');
+            }
         } catch (error) {
-            console.error('Gagal memberi like:', error);
+            console.error('Error toggling support:', error);
         } finally {
             setIsLiking(false);
         }
@@ -111,13 +143,13 @@ const SuratAnonimPage = () => {
         setPage(1); 
     }, []); 
 
-    // Handler untuk membuka modal
+    // Handler untuk membuka modal kirim surat
     const openModal = (type) => {
         setModalType(type);
         setIsModalOpen(true);
     };
     
-    // Handler untuk menutup modal
+    // Handler untuk menutup modal kirim surat
     const closeModal = () => {
         setIsModalOpen(false);
     };
@@ -153,8 +185,10 @@ const SuratAnonimPage = () => {
                             <NewSuratCard 
                                 key={surat._id} 
                                 surat={surat} 
-                                handleLike={handleLike} 
+                                handleToggleSupport={handleToggleSupport} // <-- Pass handler dukungan
                                 isLiking={isLiking}
+                                isAuthenticated={isAuthenticated}
+                                userId={user?._id}
                             />
                         ))}
                     </div>
@@ -185,9 +219,11 @@ const SuratAnonimPage = () => {
                 </section>
 
 
+                {/* ---------------------------------------------------- */}
                 {/* --- 2. Kartu Pilihan (Memunculkan Modal) --- */}
+                {/* ---------------------------------------------------- */}
                 <section className="mt-16 pt-8 border-t border-gray-200">
-                    <h2 className="text-4xl font-extrabold text-purple-700 mb-2 text-center">Kirim Suratmu di Sini</h2>
+                    <h2 className="text-4xl font-extrabold text-purple-700 mb-2 text-center">Kirim Suratmu Disini</h2>
                     <p className="text-lg text-gray-600 mb-10 text-center">
                         Pilih tipe layanan surat yang kamu butuhkan.
                     </p>
@@ -216,13 +252,18 @@ const SuratAnonimPage = () => {
                 
             </main>
             
-            {/* Modal Surat */}
+            {/* Modal Kirim Surat */}
             <SuratModal 
                 isOpen={isModalOpen} 
                 onClose={closeModal} 
                 formType={modalType} 
                 fetchSurat={fetchSurat} 
-                // Kita tidak perlu pass SuratForm lagi karena sudah diimpor di SuratModal
+            />
+
+            {/* LOGIN PROMPT MODAL (Rendered di sini, logicnya di LoginPromptModal.jsx) */}
+            <LoginPromptModal 
+                isOpen={isLoginPromptOpen} 
+                onClose={() => setIsLoginPromptOpen(false)} 
             />
 
             <Footer />

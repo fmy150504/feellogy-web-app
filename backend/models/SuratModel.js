@@ -63,10 +63,14 @@ const SuratSchema = new mongoose.Schema({
     is_deleted: {
         type: Boolean,
         default: false, // Flag untuk soft delete (Admin bisa menghapus)
-    }
+    },
+    supports: [{ // Array untuk menyimpan user ID yang mendukung surat ini
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+    }],
 }, {
     // Opsional: menambahkan field updatedAt secara otomatis
-    timestamps: true 
+    timestamps: { createdAt: 'sent_at', updatedAt: 'updated_at' }
 });
 
 // Membuat model dari skema

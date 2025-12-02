@@ -185,9 +185,59 @@ const getSentLetters = async (req, res) => {
     }
 };
 
+// @desc    Toggle dukungan (support/upvote) pada surat publik
+// @route   POST /api/letters/support/:letterId
+// @access  Private (Requires JWT)
+const toggleSupportLetter = async (req, res) => {
+    const { letterId } = req.params;
+    const userId = req.user._id; // ID pengguna yang sedang login
+
+    if (!mongoose.Types.ObjectId.isValid(letterId)) {
+        return res.status(400).json({ message: 'ID Surat tidak valid.' });
+    }
+
+    try {
+        const letter = await Surat.findById(letterId);
+
+        if (!letter) {
+            return res.status(404).json({ message: 'Surat tidak ditemukan.' });
+        }
+        if (!letter.is_published) {
+            return res.status(403).json({ message: 'Tidak dapat memberikan dukungan pada surat internal.' });
+        }
+
+        const isSupported = letter.supports.includes(userId);
+
+        if (isSupported) {
+            // Jika sudah ada, hapus dukungan (unsupvote)
+            letter.supports.pull(userId);
+            await letter.save();
+            return res.status(200).json({ 
+                message: 'Dukungan berhasil dibatalkan.',
+                supportsCount: letter.supports.length,
+                action: 'unsupported'
+            });
+        } else {
+            // Jika belum ada, tambahkan dukungan (support)
+            letter.supports.push(userId);
+            await letter.save();
+            return res.status(200).json({ 
+                message: 'Dukungan berhasil diberikan.',
+                supportsCount: letter.supports.length,
+                action: 'supported'
+            });
+        }
+
+    } catch (error) {
+        console.error('Error toggling support:', error);
+        res.status(500).json({ message: 'Gagal memproses dukungan.', error: error.message });
+    }
+};
+
 module.exports = {
     createSurat,
     getPublishedSurat,
     likeSurat,
     getSentLetters,
+    toggleSupportLetter,
 };

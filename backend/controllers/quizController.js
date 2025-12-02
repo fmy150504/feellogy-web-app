@@ -1,12 +1,12 @@
 const Quiz = require('../models/QuizModel');
-const Result = require('../models/ResultModel');
+const QuizResult = require('../models/QuizResultModel'); // Model tunggal untuk semua hasil kuis
 const mongoose = require('mongoose'); 
 
 // --- Konfigurasi Bobot Stres (Sesuai Aturan: Max 50 Poin) ---
 const STRESS_THRESHOLDS = {
-    RENDAH: 20,  // Skor 1 - 20
-    SEDANG: 35, // Skor 21 - 35
-    TINGGI: 50  // Skor 36 - 50
+    RENDAH: 20,  
+    SEDANG: 35, 
+    TINGGI: 50
 };
 
 // Fungsi untuk menentukan level stres dan pesan utama (Kotak Skor)
@@ -82,34 +82,30 @@ const getQuizQuestions = async (req, res) => {
     }
 };
 
-// @desc    Menyimpan hasil kuis dan mengembalikan level stres/healing prompt
+// @desc    Menyimpan hasil kuis dan mengembalikan level stres/healing prompt (ANONIM)
 // @route   POST /api/quiz/submit
-// @access  Public (Untuk pengguna anonim, tidak memerlukan req.user)
+// @access  Public 
 const submitQuiz = async (req, res) => {
     const { answers } = req.body;
-    // Asumsi: userId akan dimasukkan jika middleware protect diaktifkan.
+    // User ID akan null karena ini adalah submission instan anonim
     const userId = null; 
 
     if (!answers || answers.length === 0) {
         return res.status(400).json({ message: 'Jawaban kuis wajib diisi.' });
     }
 
-    // 1. Hitung Total Skor
     const totalScore = answers.reduce((sum, answer) => sum + (answer.selected_score || 0), 0);
-    
-    // 2. Tentukan Tingkat Stres dan Pesan
     const { level: stressLevel, message: levelMessage } = determineStressLevel(totalScore);
 
     try {
-        // 3. Simpan Hasil
-        const newResult = await Result.create({
+        // Simpan Hasil Instan/Anonim (Menggunakan QuizResultModel)
+        const newResult = await QuizResult.create({
+            user_id: userId, // NULL untuk anonim
             total_score: totalScore,
             stress_level: stressLevel,
             answers: answers, 
-            user_id: userId,
         });
 
-        // 4. Response Healing Prompt (Mengirimkan pesan motivasi untuk kotak kedua)
         const healingPrompt = getHealingPrompt(stressLevel);
 
         res.status(201).json({ 
@@ -117,15 +113,68 @@ const submitQuiz = async (req, res) => {
             total_score: totalScore,
             stress_level: stressLevel,
             level_message: levelMessage, 
-            tips_message: healingPrompt.tips_message, // Pesan untuk kotak Tips (Blok 2)
-            healing_prompt: healingPrompt, // Objek lengkap untuk detail di frontend
+            tips_message: healingPrompt.tips_message,
+            healing_prompt: healingPrompt, 
             result_id: newResult._id,
         });
 
     } catch (error) {
-        console.error("Error saat submit quiz:", error);
-        // FIX: Menyediakan pesan yang lebih informatif untuk debugging frontend
+        console.error("Error saat submit quiz (Anonim):", error);
         res.status(500).json({ message: 'Gagal memproses hasil kuis. (Cek Mongoose ID di backend).' });
+    }
+};
+
+
+// @desc    Menyimpan hasil Mind Quiz ke Riwayat (BUTUH LOGIN)
+// @route   POST /api/quiz/results
+// @access  Private
+const saveQuizResult = async (req, res) => {
+    // req.user._id didapat dari middleware 'protect'
+    const userId = req.user._id; 
+    const { total_score, stress_level, answers = [] } = req.body; 
+
+    if (total_score === undefined || stress_level === undefined) {
+        return res.status(400).json({ message: 'Skor dan tingkat stres wajib diisi.' });
+    }
+
+    try {
+        // Simpan hasil ke QuizResultModel (History)
+        const newResult = await QuizResult.create({
+            user_id: userId,
+            total_score: total_score,
+            stress_level: stress_level,
+            answers: answers,
+        });
+
+        res.status(201).json({
+            message: 'Hasil kuis berhasil disimpan ke riwayat!',
+            data: newResult,
+        });
+    } catch (error) {
+        console.error('Error saat menyimpan hasil kuis:', error.message);
+        res.status(500).json({ message: 'Gagal menyimpan hasil kuis.', error: error.message });
+    }
+};
+
+// @desc    Mendapatkan semua riwayat Mind Quiz pengguna yang login
+// @route   GET /api/quiz/history
+// @access  Private
+const getQuizHistory = async (req, res) => {
+    const userId = req.user._id;
+
+    try {
+        const history = await QuizResult.find({ user_id: userId })
+            .sort({ createdAt: -1 }) 
+            .select('-__v');
+
+        res.status(200).json({
+            message: 'Riwayat kuis berhasil dimuat.',
+            count: history.length,
+            data: history,
+        });
+    } catch (error) {
+        console.error('Error saat memuat riwayat kuis:', error.message);
+        res.status(500).json({ message: 'Gagal memuat riwayat kuis.' });
     }
 };
 
@@ -134,7 +183,6 @@ const submitQuiz = async (req, res) => {
 // @route   GET /api/quiz/result/:id
 // @access  Private
 const getResultById = async (req, res) => {
-    // Implementasi ini akan memerlukan Logic Authorization dan Mongoose
     if (!req.user || req.user.role === 'user') {
         return res.status(403).json({ message: 'Akses Ditolak. Membutuhkan izin.' });
     }
@@ -150,5 +198,7 @@ const getResultById = async (req, res) => {
 module.exports = {
     getQuizQuestions,
     submitQuiz,
+    saveQuizResult, 
+    getQuizHistory, 
     getResultById, 
 };

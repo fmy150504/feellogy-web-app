@@ -33,16 +33,22 @@ const LoginPage = () => {
             const data = await response.json();
 
             if (response.ok) {
-                const roleToStore = data.role || 'user';
-                // Login sukses: Simpan token, username, dan ROLE
+                // 1. Simpan token, username, dan ROLE
                 localStorage.setItem('feellogyUserToken', data.token); 
                 localStorage.setItem('feellogyUsername', data.username);
-                localStorage.setItem('feellogyUserRole', roleToStore);
+                localStorage.setItem('feellogyUserRole', data.role); 
                 
-                // Navigasi ke halaman utama (atau dashboard jika Admin/Psikolog)
-                navigate('/'); 
+                // 2. Cek Redirect Path (Digunakan untuk kembali ke halaman Dukungan)
+                const redirectPath = localStorage.getItem('redirectAfterLogin'); 
                 
-                // Force reload untuk memicu AuthContext dan Header agar update
+                if (redirectPath) {
+                    localStorage.removeItem('redirectAfterLogin');
+                    navigate(redirectPath); // Redirect ke halaman /surat
+                } else {
+                    navigate('/'); // Default ke homepage
+                }
+                
+                // 3. Force reload untuk memicu AuthContext dan Header agar update
                 window.location.reload(); 
             } else {
                 setError(data.message || 'Login gagal. Cek kembali kredensial Anda.');
@@ -63,6 +69,9 @@ const LoginPage = () => {
                         <h2 className="mt-6 text-center text-3xl font-extrabold text-purple-700">
                             Masuk ke Feellogy
                         </h2>
+                        <p className="mt-2 text-center text-sm text-gray-600">
+                            Belum punya akun? <Link to="/register" className="font-medium text-purple-600 hover:text-purple-500">Daftar di sini</Link>
+                        </p>
                     </div>
                     
                     <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -91,9 +100,6 @@ const LoginPage = () => {
                             {isLoading ? 'Memuat...' : 'Masuk'}
                         </button>
                     </form>
-                    <p className="mt-2 text-center text-sm text-gray-600">
-                        Belum punya akun? <Link to="/register" className="font-medium text-purple-600 hover:text-purple-500">Daftar di sini</Link>
-                    </p>
                 </div>
             </main>
             <Footer />

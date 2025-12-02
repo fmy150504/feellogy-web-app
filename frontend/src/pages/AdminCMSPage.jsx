@@ -3,8 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import AuthContext from '../context/AuthContext'; 
-// Asumsi CreateUserForm ada di components/admin/CreateUserForm.jsx
-import CreateUserForm from '../components/admin/CreateUserForm'; 
+// Import komponen Admin
+import LetterManagement from '../components/admin/LetterManagement'; 
+import UserManagement from '../components/admin/UserManagement'; // <-- PASTIKAN INI DIIMPOR
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 const API_URL_SUMMARY = `${BASE_URL}/admin/summary`;
@@ -32,20 +33,6 @@ const DashboardSummary = ({ summaryData }) => (
     </div>
 );
 
-// --- Komponen Manajemen Pengguna ---
-const UserManagement = ({ onUserCreated }) => (
-    <div className="space-y-6">
-        <h3 className="text-2xl font-bold text-gray-800 mb-4">Buat Akun Tim Baru</h3>
-        {/* Form untuk membuat Admin/Psikolog baru */}
-        <CreateUserForm onUserCreated={onUserCreated} />
-        
-        {/* Placeholder daftar user */}
-        <div className="p-4 bg-gray-100 rounded-lg text-gray-600">
-            <p className="font-semibold">Daftar Pengguna Aktif (Implementasi CRUD User)</p>
-        </div>
-    </div>
-);
-
 // --- Komponen Log Aktivitas ---
 const AdminLogs = ({ logs, isSummary = false }) => (
     <div className="space-y-4">
@@ -58,7 +45,7 @@ const AdminLogs = ({ logs, isSummary = false }) => (
                     <div key={log._id || index} className="p-3 border-b text-sm">
                         <p className="font-semibold text-gray-900">{log.description}</p>
                         <span className="text-xs text-gray-500">
-                            {new Date(log.createdAt).toLocaleString()} | ID: {log.admin_id?.substring(0, 5)}...
+                            {new Date(log.createdAt).toLocaleString()} | Admin ID: {log.admin_id ? log.admin_id.substring(0, 5) : 'N/A'}...
                         </span>
                     </div>
                 ))}
@@ -95,7 +82,7 @@ const AdminCMSPage = () => {
             const data = await response.json();
             
             if (response.ok) {
-                setSummaryData(data.data); // Set data nyata dari backend
+                setSummaryData(data.data); 
             }
         } catch (err) {
             console.error("Failed to fetch admin summary:", err);
@@ -106,8 +93,8 @@ const AdminCMSPage = () => {
     
     // Callback setelah user baru dibuat
     const handleUserCreated = () => {
-        fetchSummaryData(); // Refresh statistik setelah user dibuat
-        setActiveTab('summary'); // Kembali ke summary
+        fetchSummaryData(); 
+        setActiveTab('summary'); 
     };
 
     // Pengecekan Akses dan Fetch Data Awal
@@ -119,7 +106,7 @@ const AdminCMSPage = () => {
         
         // Pengalihan jika bukan Admin
         if (userRole !== 'admin') {
-            navigate('/dashboard'); // Alihkan Psikolog/User ke dashboard mereka
+            navigate('/dashboard'); 
             return;
         }
 
@@ -141,8 +128,11 @@ const AdminCMSPage = () => {
             case 'summary':
                 return <DashboardSummary summaryData={summaryData} />;
             case 'users':
-                // Pass callback
+                // Memanggil UserManagement, yang berisi CreateUserForm dan daftar user
                 return <UserManagement onUserCreated={handleUserCreated} />; 
+            case 'letters': 
+                // Memanggil LetterManagement untuk melihat semua surat (termasuk soft delete)
+                return <LetterManagement />; 
             case 'logs':
                 // Kirim data logs nyata ke komponen
                 return <AdminLogs logs={summaryData.latestLogs} />; 
@@ -160,7 +150,7 @@ const AdminCMSPage = () => {
                 <aside className="w-64 bg-white p-6 border-r shadow-md">
                     <h3 className="text-xl font-bold text-purple-700 mb-6">CMS Menu</h3>
                     <nav className="space-y-2">
-                        {['summary', 'users', 'logs'].map(tab => (
+                        {['summary', 'users', 'letters', 'logs'].map(tab => (
                             <button
                                 key={tab}
                                 onClick={() => setActiveTab(tab)}
