@@ -55,21 +55,17 @@ const ResultDisplay = ({ result, isAuthenticated, navigate, questions, answers, 
         <div className="w-full max-w-3xl mx-auto space-y-10">
 
             {/* SKOR (HIJAU UTAMA) */}
-            <div className={`p-10 rounded-2xl shadow-xl border-4 border-white ${GreenSolid} text-center`}>
-                <h2 className="text-4xl font-extrabold mb-4 text-black">
+            <div className={`p-10 rounded-2xl shadow-xl ${GreenSolid} text-center`}>
+                <h2 className="text-4xl font-sans mb-4 text-[#450E50] underline">
                     Skor Kamu: {result.totalScore}
                 </h2>
 
-                <h3 className="text-2xl font-bold text-black mb-3">
+                <h3 className="text-2xl font-bold text-[#450E50] mb-3">
                     {result.healing_prompt.title}
                 </h3>
 
-                <p className="text-xl font-semibold mb-4 text-black">
+                <p className="text-xl mb-4 text-[#450E50]">
                     {result.message}
-                </p>
-
-                <p className="text-sm font-medium text-black max-w-2xl mx-auto leading-relaxed">
-                    {result.healing_prompt.text}
                 </p>
 
                 <button 
@@ -81,13 +77,9 @@ const ResultDisplay = ({ result, isAuthenticated, navigate, questions, answers, 
             </div>
 
             {/* TIPS BOX */}
-            <div className={`p-10 rounded-2xl shadow-xl border-4 border-white ${GreenSolid} text-center`}>
-                <p className="text-xl font-bold text-black leading-relaxed">
+            <div className={`p-10 rounded-2xl shadow-xl ${GreenSolid} text-center`}>
+                <p className="text-xl text-black leading-relaxed">
                     {result.tips_message}
-                </p>
-
-                <p className="mt-5 text-sm font-semibold text-black">
-                    Saran Lanjut: {result.healing_prompt.recommendation}
                 </p>
             </div>
 
@@ -119,11 +111,11 @@ const ResultDisplay = ({ result, isAuthenticated, navigate, questions, answers, 
                     <Link 
                         key={index}
                         to={rec.link}
-                        className={`p-6 rounded-xl shadow-lg transition transform hover:scale-[1.03] text-center ${rec.color}`}
+                        className={`p-6 rounded-xl shadow-lg  border border-black transition transform hover:scale-[1.03] text-center ${rec.color}`}
                     >
                         <div className="text-4xl mb-2 text-purple-700">{rec.icon}</div>
-                        <h4 className="font-bold text-lg text-purple-800 mb-1">{rec.title}</h4>
-                        <p className="text-sm text-gray-700 leading-relaxed">
+                        <h4 className="font-bold text-lg text-[#450E50] mb-1">{rec.title}</h4>
+                        <p className="text-sm text-[#450E50] leading-relaxed">
                             {rec.description}
                         </p>
                     </Link>
