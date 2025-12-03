@@ -15,9 +15,8 @@ const PurpleSolid = 'bg-[#A88AEE] text-white';
 
 // --- Daftar Fitur untuk Rekomendasi (Dipertahankan) ---
 const ALL_RECOMMENDATIONS = [
-    { title: "Surat Anonim", description: "Berbagi cerita tanpa nama. Ruang aman untuk berbagi perasaan tanpa dinilai.", icon: "📩", color: "bg-[#D8C7FF]", link: "/surat" },
-    { title: "Audio Diary", description: "Dengarkan kisah-kisah dan obrolan seputar kesehatan mental untuk menemani healingmu.", icon: "🎧", color: "bg-[#D8C7FF]", link: "/audio" },
-    { title: "Surat Psikolog", description: "Dapatkan balasan personal dari psikolog berlisensi dalam 48 jam.", icon: "💬", color: "bg-[#D8C7FF]", link: "/surat" },
+    { title: "Surat Anonim", description: "Berbagi cerita tanpa nama. Ruang aman untuk berbagi perasaan tanpa dinilai.", icon: "📩", color: "bg-[#D9D9D9] text-[#450E50]", link: "/surat" },
+    { title: "Audio Diary", description: "Dengarkan kisah-kisah dan obrolan seputar kesehatan mental untuk menemani healingmu.", icon: "🎧", color: "bg-[#D9D9D9] text-[#450E50]", link: "/audio" },
 ];
 
 // Fungsi untuk memilih N item unik secara acak
@@ -110,7 +109,7 @@ const ResultDisplay = ({ result, isAuthenticated, navigate, questions, answers, 
 
             {/* REKOMENDASI */}
             <div className="text-center">
-                <h3 className="inline-block px-6 py-2 bg-[#D8C7FF] text-[#4B0082] font-extrabold rounded-full shadow-md text-lg">
+                <h3 className="inline-block px-6 py-2 bg-[#A88AEE] text-[#450E50] font-extrabold rounded-full shadow-md text-lg">
                     Rekomendasi Untukmu
                 </h3>
             </div>
