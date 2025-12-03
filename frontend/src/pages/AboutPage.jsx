@@ -5,7 +5,7 @@ import LogoImage from '../assets/logo-feellogy.png';
 
 const AboutPage = () => {
     // Warna Primer Teks Ungu di Mockup
-    const PURPLE_TEXT = 'text-[#7C5892]'; 
+    const PURPLE_TEXT = 'text-[#450E50]'; 
     const PURPLE_EMPHASIS = 'font-bold text-[#7C5892]';
     const PURPLE_LINE = 'border-t-2 border-[#7C5892]';
 
@@ -22,31 +22,31 @@ const AboutPage = () => {
                         <img src={LogoImage} alt="Feellogy Logo" className="w-full h-full object-contain" />
                     </div>
                     
-                    <h1 className={`text-5xl font-extrabold ${PURPLE_TEXT} mb-4`}>Tentang Kami</h1>
+                    <h1 className={`text-5xl font-extrabold font-serif ${PURPLE_TEXT} mb-4`}>Tentang Kami</h1>
                     
-                    <p className="text-lg text-gray-700 leading-relaxed max-w-3xl mx-auto">
+                    <p className="text-lg text-[#450E50] leading-relaxed max-w-3xl mx-auto">
                         Feellogy adalah media reflektif berbasis kesehatan mental yang menyediakan ruang aman untuk memahami diri dan mengekspresikan perasaan.
                     </p>
                 </div>
 
                 {/* --- 1. SLOGAN dan FILOSOFI --- */}
                 <section className="py-3 grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                    
-                    {/* Blok Slogan (Kiri) - Mengambil 2/3 Lebar */}
-                    <div className="text-left md:text-center p-2 md:col-span-2">
-                        <p className="text-lg text-justify text-gray-800 leading-relaxed">
+
+                    {/* Blok Slogan (Kiri) - Mobile turun dulu */}
+                    <div className="text-left md:text-center p-2 md:col-span-2 order-2 md:order-1">
+                        <p className="text-lg text-justify text-[#450E50] leading-relaxed">
                             Slogan <em className={PURPLE_EMPHASIS}>The Science of Feelings, The Art of Healing</em> mencerminkan tujuan utama Feellogy dengan menggabungkan pengetahuan (<em className="italic">science</em>) dan kepekaan emosional (<em className="italic">art</em>)
                         </p>
                     </div>
 
-                    {/* Blok Judul (Kanan) - Mengambil 1/3 Lebar */}
-                    <div className="text-center md:text-right p-2 md:col-span-1">
+                    {/* Blok Judul (Kanan) - Mobile tetap di atas */}
+                    <div className="text-center md:text-right p-2 md:col-span-1 order-1 md:order-2">
                         <h2 className={`text-right text-4xl font-extrabold ${PURPLE_TEXT}`}>Filosofi Media</h2>
                     </div>
                 </section>
 
                 {/* Garis pemisah berwarna ungu di mockup */}
-                <hr className="border-t-8 border-purple-500 my-8"/> 
+                <hr className="border-t-8 border-[#A88AEE] my-8"/> 
 
                 {/* --- 2. VISI MEDIA --- */}
                 <section className="py-3 grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
@@ -58,21 +58,21 @@ const AboutPage = () => {
 
                     {/* Blok Judul (Kanan) - Mengambil 2/3 Lebar */}
                     <div className="text-left md:text-right p-2 md:col-span-2">
-                        <p className="text-lg text-justify text-gray-800 leading-relaxed">
+                        <p className="text-lg text-justify text-[#450E50] leading-relaxed">
                             Mewujudkan ruang aman yang membantu setiap orang memahami, merawat, dan mengekspresikan emosinya secara sehat melalui konten reflektif dan dukungan yang manusiawi.
                         </p>
                     </div>
                 </section>
 
                 {/* Garis pemisah berwarna hijau di mockup */}
-                <hr className="border-t-8 border-green-500 my-8"/> 
+                <hr className="border-t-8 border-[#AFC74F] my-8"/> 
 
                 {/* --- 3. MISI MEDIA --- */}
                 <section className="py-3 grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                     
                     {/* Blok Slogan (Kiri) - Mengambil 2/3 Lebar */}
-                    <div className="text-left md:text-center p-2 md:col-span-2">
-                        <ul className="list-decimal list-inside text-gray-800 space-y-2 text-lg leading-relaxed text-left">
+                    <div className="text-left md:text-center p-2 md:col-span-2 order-2 md:order-1">
+                        <ul className="list-decimal list-inside text-[#450E50] space-y-2 text-lg leading-relaxed text-left">
                             <li>Menciptakan ruang aman untuk berbagi dan memahami perasaan.</li>
                             <li>Menyediakan konten reflektif yang membantu mengenali emosi.</li>
                             <li>Memberikan dukungan mental yang ringan dan terjangkau.</li>
@@ -80,14 +80,14 @@ const AboutPage = () => {
                     </div>
 
                     {/* Blok Judul (Kanan) - Mengambil 1/3 Lebar */}
-                    <div className="text-left md:text-right p-2 md:col-span-1">
+                    <div className="text-center md:text-right p-2 md:col-span-1 order-1 md:order-2">
                         <h2 className={`text-right text-4xl font-extrabold ${PURPLE_TEXT} mb-4`}>Misi Media</h2>
                     </div>
                 </section>
 
                 {/* --- 4. HASHTAG DAN Slogan Bawah --- */}
                 <section className="text-center mt-12">
-                    <h2 className={`text-4xl font-extrabold ${PURPLE_TEXT} mb-4`}>
+                    <h2 className={`text-4xl font-semibold ${PURPLE_TEXT} mb-4`}>
                         #FeelWithFeellogy
                     </h2>
                     <p className="text-lg text-gray-700">
