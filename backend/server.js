@@ -2,9 +2,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
-const path = require('path'); // Tambahkan require path untuk deployment
+const path = require('path'); // Diperlukan untuk deployment file statis
 
-// Import Routes
+// --- Import Routes ---
 const suratRoutes = require('./routes/suratRoutes');
 const audioRoutes = require('./routes/audioRoutes');
 const quizRoutes = require('./routes/quizRoutes');
@@ -13,27 +13,26 @@ const psikologRoutes = require('./routes/psikologRoutes');
 const walletRoutes = require('./routes/walletRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 
-// Muat environment variables dari .env (Hanya untuk pengembangan lokal)
-// Di Render, variabel ini akan diambil dari dashboard
+// Muat environment variables
+// Menggunakan path relatif '..' karena .env berada di root proyek
 dotenv.config({ path: path.resolve(__dirname, '..', '.env') }); 
 
 // Inisialisasi Aplikasi Express
 const app = express();
 
 // --- Variabel Konfigurasi ---
-// Gunakan process.env.PORT yang disediakan oleh hosting (misalnya Render)
 const PORT = process.env.PORT || 8080; 
 const MONGODB_URI = process.env.MONGODB_URI;
 
-// --- Middleware Umum ---
-app.use(express.json()); // Untuk memparsing JSON dari request body
+// --- Middleware Utama ---
+app.use(express.json()); // Parsing JSON dari request body
 
-// Konfigurasi CORS: Diaktifkan hanya untuk pengembangan lokal atau domain tertentu
-// Di produksi, CORS umumnya tidak diperlukan jika Express menyajikan file frontend
+// Konfigurasi CORS 
+// Matikan CORS di produksi karena Express akan menyajikan frontend
 app.use(cors({
     origin: (process.env.NODE_ENV === 'production' 
-        ? false // Matikan CORS saat produksi jika Express melayani frontend
-        : ['http://localhost:5173', 'https://dcd405eab62a.ngrok-free.app'] // Lokal
+        ? false 
+        : ['http://localhost:5173'] // Ganti dengan domain lokal Anda
     ), 
     credentials: true
 }));
@@ -47,30 +46,32 @@ app.use('/api/psikolog', psikologRoutes);
 app.use('/api/wallet', walletRoutes);
 app.use('/api/admin', adminRoutes);
 
-// **********************************************
-// ********* LOGIKA FRONTEND UNTUK PRODUKSI *********
-// **********************************************
-
-// Route Sederhana (Test) - Ini hanya akan berfungsi jika tidak di lingkungan produksi, 
-// atau jika request tidak cocok dengan API apapun.
-// Jika di produksi, route catch-all di bawah akan menangkapnya.
-app.get('/', (req, res) => {
+// --- Route Sederhana (API Test) ---
+app.get('/api', (req, res) => {
     res.status(200).json({ message: 'Selamat datang di API Feellogy!' });
 });
 
 
-// Jika berada di lingkungan produksi (saat deploy ke Render)
+// **********************************************
+// ********* LOGIKA FRONTEND UNTUK PRODUKSI *********
+// **********************************************
+
 if (process.env.NODE_ENV === 'production') {
-    // Path ke folder build frontend (dari backend, naik satu tingkat '..', lalu ke 'frontend/dist')
+    // 1. Definisikan Path ke folder build React (frontend/dist)
     const frontendPath = path.resolve(__dirname, '..', 'frontend', 'dist'); 
 
-    // Middleware untuk menyajikan file statis dari folder build React
-    app.use(express.static(frontendPath));
+    // 2. Middleware untuk menyajikan file statis (CSS, JS, assets)
+    app.use(express.static(frontendPath)); 
 
-    // Tangani semua request GET yang tidak cocok dengan route API di atas (catch-all)
-    // dan kirim index.html (untuk routing React, penting untuk refresh halaman)
-    app.get('*', (req, res) => {
-        res.sendFile(path.resolve(frontendPath, 'index.html'));
+    // 3. Catch-all: Middleware paling universal untuk React Router
+    // Mendaftarkan middleware ini TANPA path akan menjamin rute ini
+    // hanya akan dieksekusi jika request tidak cocok dengan API atau file statis di atas.
+    app.use((req, res) => {
+        if (req.method === 'GET') {
+             res.sendFile(path.resolve(frontendPath, 'index.html'));
+        } else {
+             res.status(404).send('Not Found');
+        }
     });
 }
 
@@ -79,7 +80,7 @@ mongoose.connect(MONGODB_URI, { dbName: 'feellogy-database' })
     .then(() => {
         console.log('✅ Koneksi ke MongoDB berhasil!');
 
-        // Start Server hanya jika koneksi database berhasil
+        // Start Server
         app.listen(PORT, () => {
             console.log(`🚀 Server berjalan di http://localhost:${PORT}`);
             if (process.env.NODE_ENV === 'production') {
