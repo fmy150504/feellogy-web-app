@@ -117,7 +117,7 @@ const BuyCoinsPage = () => {
             <Header />
             <main className="flex-grow container mx-auto px-6 py-12 max-w-2xl">
                 
-                <h1 className="text-4xl font-extrabold text-purple-700 mb-8 text-center">🛒 Beli Koin Feellogy</h1>
+                <h1 className="text-4xl font-extrabold text-[#450E50] font-serif mb-8 text-center">🛒 Beli Koin Feellogy</h1>
 
                 {/* Saldo Saat Ini */}
                 <div className="p-4 bg-purple-50 rounded-lg shadow-md mb-6 flex justify-between items-center border border-purple-200">

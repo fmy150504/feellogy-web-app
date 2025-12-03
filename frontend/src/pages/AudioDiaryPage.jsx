@@ -193,7 +193,7 @@ const AudioDiaryPage = () => {
                 <div className="text-center mb-10">
                     <button 
                         onClick={playRandomEpisode}
-                        className="px-6 py-3 bg-purple-500 text-white font-bold rounded-full hover:bg-purple-600 transition shadow-md"
+                        className="px-6 py-3 bg-[#A88AEE] text-white font-bold rounded-full hover:bg-purple-600 transition shadow-md"
                     >
                         Mulai Mendengarkan
                     </button>

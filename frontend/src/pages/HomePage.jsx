@@ -119,7 +119,7 @@ const HomePage = () => {
                         href="https://www.whatsapp.com/channel/0029Vb7HF5T90x2xLpmgud3z" 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="px-8 py-3 bg-[#AFC74F] text-[#450E50] font-bold rounded-full hover:bg-green-400 transition shadow-md"
+                        className="px-8 py-3 bg-[#AFC74F] text-[#450E50] font-bold rounded-full hover:bg-gray-400 transition shadow-md"
                     >
                         Gabung Sekarang
                     </a>

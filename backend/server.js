@@ -13,9 +13,9 @@ const psikologRoutes = require('./routes/psikologRoutes');
 const walletRoutes = require('./routes/walletRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 
-// Muat environment variables
-// Menggunakan path relatif '..' karena .env berada di root proyek
-dotenv.config({ path: path.resolve(__dirname, '..', '.env') }); 
+// Muat environment variables dari .env (Hanya untuk pengembangan lokal)
+// Di Render, variabel ini akan diambil dari dashboard
+dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 // Inisialisasi Aplikasi Express
 const app = express();
@@ -51,21 +51,12 @@ app.get('/api', (req, res) => {
     res.status(200).json({ message: 'Selamat datang di API Feellogy!' });
 });
 
-
-// **********************************************
-// ********* LOGIKA FRONTEND UNTUK PRODUKSI *********
-// **********************************************
-
 if (process.env.NODE_ENV === 'production') {
-    // 1. Definisikan Path ke folder build React (frontend/dist)
-    const frontendPath = path.resolve(__dirname, '..', 'frontend', 'dist'); 
+    const frontendPath = path.resolve(__dirname, '..', 'frontend', 'dist');
 
-    // 2. Middleware untuk menyajikan file statis (CSS, JS, assets)
-    app.use(express.static(frontendPath)); 
+    app.use(express.static(frontendPath));
 
-    // 3. Catch-all: Middleware paling universal untuk React Router
-    // Mendaftarkan middleware ini TANPA path akan menjamin rute ini
-    // hanya akan dieksekusi jika request tidak cocok dengan API atau file statis di atas.
+    // Middleware universal: Tanpa path, tanpa asterisk
     app.use((req, res) => {
         if (req.method === 'GET') {
              res.sendFile(path.resolve(frontendPath, 'index.html'));
