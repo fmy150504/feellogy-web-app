@@ -94,15 +94,19 @@ const EpisodeListItem = ({ ep, onClick, isPlaying }) => (
         onClick={() => onClick(ep)} 
     >
         <div>
-            <h3 className="text-xl font-semibold text-gray-800">{ep.title}</h3>
+            <h3 className="text-xl font-semibold text-gray-800">
+                {ep.title.length > 69 ? ep.title.slice(0, 69) + "..." : ep.title}
+            </h3>
             <p className="text-sm text-gray-600 mt-1 line-clamp-2">{ep.description}</p>
             <span className="text-xs text-purple-500 font-medium mt-1 block">Durasi: {ep.duration}</span>
         </div>
         
         <button 
-            className={`px-4 py-2 text-white font-semibold rounded-full ml-4 ${isPlaying ? 'bg-gray-400 cursor-default' : 'bg-green-500 hover:bg-green-600'}`}
+            className={`h-12 px-5 flex items-center justify-center text-white font-semibold rounded-full ml-4 
+            ${isPlaying ? 'bg-gray-400 cursor-default' : 'bg-green-500 hover:bg-green-600'}`}
             disabled={isPlaying}
         >
+
             {isPlaying ? 'Memutar' : '▶️ Putar'}
         </button>
     </div>

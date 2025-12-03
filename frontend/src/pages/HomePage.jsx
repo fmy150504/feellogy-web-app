@@ -11,11 +11,11 @@ const FeatureBox = ({ title, description, icon, color, link }) => (
     // Styling solid, border putih tebal, alignment rata kiri
     <Link 
         to={link} 
-        className={`p-6 rounded-xl shadow-lg transition transform hover:scale-[1.03] ${color} flex flex-col justify-start text-left h-full border-4 border-white`}
+        className={`p-6 rounded-xl shadow-lg transition transform hover:scale-[1.03] ${color} flex flex-col justify-items-center text-center h-full border-4 border-white`}
     >
         <div className="text-4xl mb-3">{icon}</div>
         <h3 className="font-semibold text-xl mb-1 text-white">{title}</h3>
-        <p className="text-sm mt-1 text-white opacity-90">{description}</p>
+        <p className="text-sm mt-1 text-white opacity-90 font-sans">{description}</p>
     </Link>
 );
 
@@ -86,7 +86,7 @@ const HomePage = () => {
                     <h1 className="text-6xl font-serif font-extrabold text-[#450E50] mb-4">
                         The Science of Feelings<br />The Art of Healing
                     </h1>
-                    <p className="font-sans text-xl text-gray-500 max-w-2xl mx-auto mb-8">
+                    <p className="font-sans text-xl text-[#450E50] max-w-2xl mx-auto mb-8">
                         Feellogy adalah media reflektif yang berfokus pada isu kesehatan mental. Kami menghadirkan ruang aman untuk berbagi, memahami diri, dan tumbuh bersama.
                     </p>
                     
@@ -109,17 +109,17 @@ const HomePage = () => {
                 
                 {/* Komunitas (Background Dihapus) */}
                 <section className="text-center mt-20 container mx-auto max-w-4xl">
-                    <h2 className="text-3xl font-bold text-gray-800 mb-3">
+                    <h2 className="text-3xl font-bold text-[#450E50] mb-3 font-serif">
                         Bergabung dengan Feelmates
                     </h2>
-                    <p className="text-lg text-gray-600 mb-6">
+                    <p className="text-lg text-[#450E50] mb-6">
                         Bergabung dengan WhatsApp Channel kami agar<br/>tidak terlewat pembaruan dari kami seputar Feellogy!
                     </p>
                     <a 
                         href="https://www.whatsapp.com/channel/0029Vb7HF5T90x2xLpmgud3z" 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="px-8 py-3 bg-green-300 text-green-800 font-bold rounded-full hover:bg-green-400 transition shadow-md"
+                        className="px-8 py-3 bg-[#AFC74F] text-[#450E50] font-bold rounded-full hover:bg-green-400 transition shadow-md"
                     >
                         Gabung Sekarang
                     </a>
