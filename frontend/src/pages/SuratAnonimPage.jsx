@@ -166,7 +166,7 @@ const SuratAnonimPage = () => {
             <main className="flex-grow container mx-auto px-6 py-12 max-w-7xl">
                 {/* Judul Halaman */}
                 <h1 className="font-serif text-4xl font-extrabold text-[#450E50] mb-2 text-center">Surat Anonim</h1>
-                <p className="text-lg text-gray-700 mb-10 text-center">
+                <p className="text-lg text-[#450E50] font-sans mb-10 text-center">
                     Berbagi dan baca cerita tanpa nama karena<br />setiap perasaan butuh ruang untuk dimengerti
                 </p>
                 
@@ -223,8 +223,8 @@ const SuratAnonimPage = () => {
                 {/* --- 2. Kartu Pilihan (Memunculkan Modal) --- */}
                 {/* ---------------------------------------------------- */}
                 <section className="mt-16 pt-8 border-t border-gray-200">
-                    <h2 className="text-4xl font-extrabold text-purple-700 mb-2 text-center">Kirim Suratmu Disini</h2>
-                    <p className="text-lg text-gray-600 mb-10 text-center">
+                    <h2 className="text-4xl font-extrabold font-serif text-[#450E50] mb-2 text-center">Kirim Suratmu Disini</h2>
+                    <p className="text-lg text-[#450E50] font-sans mb-10 text-center">
                         Pilih tipe layanan surat yang kamu butuhkan.
                     </p>
                     

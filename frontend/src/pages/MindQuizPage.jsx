@@ -31,16 +31,11 @@ const getRandomRecommendations = (n) => {
 // --- Komponen Tampilan Hasil Kuis (Gabungan 2 Blok) ---
 const ResultDisplay = ({ result, isAuthenticated, navigate, questions, answers, saveHistoryAfterLogin }) => { 
     
-    // Safety check untuk mencegah TypeError
-    if (!result || !result.healing_prompt) {
-         return null; 
-    }
-    
+    if (!result || !result.healing_prompt) return null;
+
     const [recommendations] = useState(() => getRandomRecommendations(2));
 
-    // --- Logic Redirect/Simpan ke Local Storage ---
     const handleLoginNow = () => {
-        // 1. Simpan jawaban dan hasil lengkap ke Local Storage sebelum redirect
         const pendingResult = {
             totalScore: result.totalScore,
             stress_level: result.stress_level,
@@ -48,91 +43,94 @@ const ResultDisplay = ({ result, isAuthenticated, navigate, questions, answers, 
                 question_id: q._id,
                 selected_score: answers[q._id] || 0,
             })),
-            // Simpan data display lengkap
             message: result.message,
             tips_message: result.tips_message,
             healing_prompt: result.healing_prompt,
         };
         localStorage.setItem('pendingQuizResult', JSON.stringify(pendingResult));
-        
-        // 2. Simpan path redirect (/quiz) dan navigasi ke /login
         localStorage.setItem('redirectAfterLogin', '/quiz'); 
         navigate('/login');
     };
 
-    // Teks Tips Statis (Kotak Hijau Tips)
-    const ResetTipsBox = (
-        <div className={`p-8 rounded-xl shadow-lg border-4 border-white ${GreenSolid} text-center mt-8 max-w-2xl mx-auto`}>
-             <p className="text-xl font-bold text-black"> 
-                 {result.tips_message || "Teks motivasi tidak tersedia."} 
-             </p>
-             <p className="mt-4 text-sm font-semibold text-black">
-                 Saran Lanjut: {result.healing_prompt?.recommendation || 'Hubungi tim Feellogy.'}
-             </p>
-        </div>
-    );
-    
     return (
-        <div className="w-full max-w-4xl mx-auto">
-            {/* Blok 1: Skor dan Pesan (HIJAU SKOR) */}
-            <div className={`p-8 rounded-xl shadow-lg border-4 border-white ${GreenSolid} text-center`}>
-                <h2 className="text-4xl font-extrabold mb-2 text-black">Skor Kamu: {result.totalScore}</h2>
+        <div className="w-full max-w-3xl mx-auto space-y-10">
+
+            {/* SKOR (HIJAU UTAMA) */}
+            <div className={`p-10 rounded-2xl shadow-xl border-4 border-white ${GreenSolid} text-center`}>
+                <h2 className="text-4xl font-extrabold mb-4 text-black">
+                    Skor Kamu: {result.totalScore}
+                </h2>
+
                 <h3 className="text-2xl font-bold text-black mb-3">
                     {result.healing_prompt.title}
                 </h3>
-                <p className={`text-xl font-semibold mb-2 text-black`}> 
+
+                <p className="text-xl font-semibold mb-4 text-black">
                     {result.message}
                 </p>
-                <p className="text-sm font-medium text-black">
+
+                <p className="text-sm font-medium text-black max-w-2xl mx-auto leading-relaxed">
                     {result.healing_prompt.text}
                 </p>
-                
+
                 <button 
-                    onClick={() => window.location.reload()} // Ulangi Kuis
-                    className="inline-block mt-4 px-6 py-2 bg-white text-green-800 font-semibold rounded-full hover:bg-gray-100 transition shadow-md"
-                    >
+                    onClick={() => window.location.reload()}
+                    className="inline-block mt-6 px-6 py-3 bg-white text-green-800 font-semibold rounded-full hover:bg-gray-100 transition shadow"
+                >
                     Ulangi Kuis
                 </button>
             </div>
 
-            {/* Blok 2: Tips Statis (HIJAU TIPS) */}
-            {ResetTipsBox}
+            {/* TIPS BOX */}
+            <div className={`p-10 rounded-2xl shadow-xl border-4 border-white ${GreenSolid} text-center`}>
+                <p className="text-xl font-bold text-black leading-relaxed">
+                    {result.tips_message}
+                </p>
 
-            {/* Blok Login Prompt (HANYA MUNCUL JIKA BELUM LOGIN) */}
+                <p className="mt-5 text-sm font-semibold text-black">
+                    Saran Lanjut: {result.healing_prompt.recommendation}
+                </p>
+            </div>
+
+            {/* LOGIN BOX */}
             {!isAuthenticated && (
-                <div className="p-4 rounded-lg bg-yellow-50 border border-yellow-300 mt-6 max-w-2xl mx-auto text-center">
+                <div className="p-6 rounded-xl bg-yellow-50 border border-yellow-300 max-w-xl mx-auto text-center shadow">
                     <p className="font-semibold text-gray-800 mb-3">
                         Ingin menyimpan hasil kuis ini?
                     </p>
+
                     <button
                         onClick={handleLoginNow}
-                        className="px-4 py-2 text-sm text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition font-semibold"
+                        className="px-5 py-2 text-sm text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition font-semibold"
                     >
                         Login Sekarang
                     </button>
                 </div>
             )}
 
-            {/* Blok 3: Rekomendasi Konten */}
-            <div className="text-center mt-12 mb-8">
-                 <h3 className="inline-block px-6 py-2 bg-[#D8C7FF] text-[#4B0082] font-extrabold rounded-full shadow-md text-lg">
+            {/* REKOMENDASI */}
+            <div className="text-center">
+                <h3 className="inline-block px-6 py-2 bg-[#D8C7FF] text-[#4B0082] font-extrabold rounded-full shadow-md text-lg">
                     Rekomendasi Untukmu
-                 </h3>
+                </h3>
             </div>
-            
-            <div className="grid grid-cols-2 gap-6 max-w-3xl mx-auto">
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-xl mx-auto">
                 {recommendations.map((rec, index) => (
                     <Link 
                         key={index}
                         to={rec.link}
-                        className={`p-6 rounded-xl shadow-lg transition transform hover:scale-[1.03] text-center ${rec.color} text-purple-800`}
+                        className={`p-6 rounded-xl shadow-lg transition transform hover:scale-[1.03] text-center ${rec.color}`}
                     >
                         <div className="text-4xl mb-2 text-purple-700">{rec.icon}</div>
                         <h4 className="font-bold text-lg text-purple-800 mb-1">{rec.title}</h4>
-                        <p className="text-sm text-gray-700">{rec.description}</p>
+                        <p className="text-sm text-gray-700 leading-relaxed">
+                            {rec.description}
+                        </p>
                     </Link>
                 ))}
             </div>
+
         </div>
     );
 };
@@ -315,7 +313,7 @@ const MindQuizPage = () => {
             <div className="min-h-screen flex flex-col bg-white">
                 <Header />
                 <main className="flex-grow container mx-auto px-6 py-12 max-w-4xl text-center">
-                    <h1 className="text-4xl font-extrabold text-purple-700 mb-4">Mind Quiz</h1>
+                    <h1 className="text-4xl font-extrabold font-serif text-[#450E50] mb-4">Mind Quiz</h1>
                     <p className="text-gray-600">Saat ini belum ada pertanyaan kuis yang tersedia di database. Mohon hubungi admin.</p>
                 </main>
                 <Footer />
@@ -334,8 +332,8 @@ const MindQuizPage = () => {
                 
                 {/* Header Kuis */}
                 <div className="text-center mb-10">
-                    <h1 className="text-4xl font-extrabold text-purple-700 mb-2">Mind Quiz</h1>
-                    <p className="text-lg text-gray-700 mb-6">
+                    <h1 className="text-4xl font-extrabold font-serif text-[#450E50] mb-2">Mind Quiz</h1>
+                    <p className="text-lg font-sans text-[#450E50] mb-6">
                         Kenali diri dan ketahui tingkat stresmu Lebih<br/>dalam melalui Kuis Reflektif di <span className="font-bold">Mind Quiz</span>!
                     </p>
                     {/* Kotak Peringatan */}
