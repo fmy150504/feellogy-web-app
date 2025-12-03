@@ -24,8 +24,8 @@ const HomePage = () => {
     const [isFetching, setIsFetching] = useState(false);
     
     // Warna Solid Feellogy
-    const GreenSolid = "bg-[#7FB77E]"; 
-    const PurpleSolid = "bg-[#A98EFA]";
+    const GreenSolid = "bg-[#AFC74F]"; 
+    const PurpleSolid = "bg-[#A88AEE]";
     
     // Data Fitur (Hanya 3, Healing Prompt Dihapus)
     const featureData = [
@@ -83,17 +83,17 @@ const HomePage = () => {
                 
                 {/* Hero Section */}
                 <section className="text-center mb-20 pt-16 container mx-auto max-w-4xl px-6">
-                    <h1 className="text-6xl font-serif font-extrabold text-gray-800 mb-4">
+                    <h1 className="text-6xl font-serif font-extrabold text-[#450E50] mb-4">
                         The Science of Feelings<br />The Art of Healing
                     </h1>
-                    <p className="text-xl text-gray-500 max-w-2xl mx-auto mb-8">
+                    <p className="font-sans text-xl text-gray-500 max-w-2xl mx-auto mb-8">
                         Feellogy adalah media reflektif yang berfokus pada isu kesehatan mental. Kami menghadirkan ruang aman untuk berbagi, memahami diri, dan tumbuh bersama.
                     </p>
                     
                     {/* Tombol Mulai Mendengar (Play Random Audio) */}
                     <button 
                         onClick={handleStartListening} // <-- Fungsionalitas Tombol
-                        className="px-8 py-3 bg-purple-300 text-purple-800 font-bold rounded-full hover:bg-purple-400 transition shadow-md disabled:opacity-50"
+                        className="px-8 py-3 bg-[#A88AEE] text-white font-bold rounded-full hover:bg-purple-400 transition shadow-md disabled:opacity-50"
                         disabled={isFetching}
                     >
                         {isFetching ? 'Memuat...' : 'Mulai Mendengar'}
