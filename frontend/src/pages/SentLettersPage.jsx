@@ -115,7 +115,7 @@ const SentLettersPage = () => {
         <div className="min-h-screen flex flex-col">
             <Header />
             <main className="flex-grow container mx-auto px-6 py-12 max-w-4xl">
-                <h1 className="text-4xl font-extrabold text-purple-700 mb-8 text-center">Kotak Keluar Saya</h1>
+                <h1 className="text-4xl font-extrabold font-serif text-[#450E50] mb-8 text-center">Kotak Keluar Saya</h1>
 
                 {isLoading ? (
                     <p className="text-center text-gray-600">Memuat surat terkirim...</p>
