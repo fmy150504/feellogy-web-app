@@ -187,7 +187,7 @@ const AudioDiaryPage = () => {
                 {/* Bagian Judul Utama (Tetap Ditampilkan) */}
                 <h1 className="text-4xl font-extrabold font-serif text-[#450E50] mb-2 text-center">Audio Diary</h1>
                 <p className="text-lg text-[#450E50] font-sans mb-8 text-center max-w-3xl mx-auto">
-                    Dengarkan percakapan hangat bersama psikolog tentang<br />kisah seputar penyembuhan mental di <b>Audio Diary</b>!
+                    Dengarkan percakapan hangat bersama psikolog tentang kisah seputar penyembuhan mental di <b>Audio Diary</b>!
                 </p>
 
                 <div className="text-center mb-10">
